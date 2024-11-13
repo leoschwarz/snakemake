@@ -1,3 +1,8 @@
+"""
+Can be run in container with
+ docker run --rm -it --user $(id -u):$(id -g) --mount type=bind,source=$(pwd),target=$(pwd) --workdir $(pwd) --platform linux/amd64 --entrypoint bash mambaorg/micromamba:debian12
+"""
+
 import nox
 
 
