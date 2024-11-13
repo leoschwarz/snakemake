@@ -1,4 +1,5 @@
 import bisect
+import math
 from typing import Sequence, TypeVar, Generator
 
 V = TypeVar("V")
@@ -14,10 +15,12 @@ class PrefixLookup:
     def match_iter(self, key: str) -> Generator[V, None, None]:
         hits = set()
         stop_idx = bisect.bisect_right(self._entries, key, key=lambda x: x[0])
+        previous_len = math.inf
         for index in range(stop_idx - 1, -1, -1):
             k, entry = self._entries[index]
             if key.startswith(k):
                 hits.add(entry)
-            elif len(k) > len(key):
+            elif len(k) > previous_len:
                 break
+            previous_len = len(k)
         return hits
