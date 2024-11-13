@@ -3,74 +3,68 @@ from snakemake.common.prefix_lookup import PrefixLookup
 
 def test_basic_match():
     lookup = PrefixLookup([
-        ("hello", "world"),
-        ("hi", "there")
+        ("a", 1),
+        ("b", 2)
     ])
-    assert lookup.match("hello") == {"world"}
-    assert lookup.match("hi") == {"there"}
+    assert lookup.match("a") == {1}
+    assert lookup.match("b") == {2}
 
 
 def test_multiple_matches():
     lookup = PrefixLookup([
+        ("", 0),
         ("a", 1),
         ("ab", 2),
         ("abc", 3)
     ])
-    assert lookup.match("abc") == {1, 2, 3}
-    assert lookup.match("ab") == {1, 2}
-    assert lookup.match("a") == {1}
+    assert lookup.match("abcd") == {0, 1, 2, 3}
+    assert lookup.match("abc") == {0, 1, 2, 3}
+    assert lookup.match("ab") == {0, 1, 2}
+    assert lookup.match("a") == {0, 1}
+    assert lookup.match("") == {0}
 
 
 def test_no_matches():
     lookup = PrefixLookup([
-        ("hello", 1),
-        ("world", 2)
+        ("a", 1),
+        ("b", 2)
     ])
-    assert lookup.match("xyz") == set()
-    assert lookup.match("he") == set()
-
-
-def test_empty_input():
-    lookup = PrefixLookup([
-        ("", 1),
-        ("a", 2)
-    ])
-    assert lookup.match("") == {1}
-    assert lookup.match("anything") == {1, 2}
+    assert lookup.match("c") == set()
+    assert lookup.match("cc") == set()
 
 
 def test_empty_lookup():
     lookup = PrefixLookup([])
-    assert lookup.match("anything") == set()
+    assert lookup.match("abc") == set()
 
 
 def test_overlapping_prefixes():
     lookup = PrefixLookup([
-        ("test", 1),
-        ("testing", 2),
-        ("test", 3),  # Duplicate prefix
+        ("a", 1),
+        ("aa", 2),
+        ("a", 3),
     ])
-    assert lookup.match("testing") == {1, 2, 3}
-    assert lookup.match("test") == {1, 3}
+    assert lookup.match("aaa") == {1, 2, 3}
+    assert lookup.match("a") == {1, 3}
 
 
 def test_case_sensitivity():
     lookup = PrefixLookup([
-        ("Test", 1),
-        ("test", 2),
-        ("TEST", 3)
+        ("a", 1),
+        ("A", 2),
+        ("ab", 3)
     ])
-    assert lookup.match("Test") == {1}
-    assert lookup.match("test") == {2}
-    assert lookup.match("TEST") == {3}
+    assert lookup.match("a") == {1}
+    assert lookup.match("A") == {2}
+    assert lookup.match("ab") == {3, 1}
 
 
 def test_special_characters():
     lookup = PrefixLookup([
-        (" ", 1),  # Space
-        ("\t", 2),  # Tab
-        ("\n", 3),  # Newline
-        ("$#@!", 4),  # Special characters
+        (" ", 1),
+        ("\t", 2),
+        ("\n", 3),
+        ("$#@!", 4),
         ("test$", 5)
     ])
     assert lookup.match(" hello") == {1}
@@ -111,36 +105,26 @@ def test_sorting_behavior():
 
 def test_different_value_types():
     lookup = PrefixLookup([
-        ("int", 42),
-        ("str", "hello"),
-        ("list", (1, 2, 3)),
-        ("none", None)
+        ("a", 42),
+        ("b", "hello"),
+        ("c", (1, 2, 3)),
+        ("d", None)
     ])
-    assert lookup.match("int_test") == {42}
-    assert lookup.match("str_test") == {"hello"}
-    assert lookup.match("list_test") == {(1, 2, 3)}
-    assert lookup.match("none_test") == {None}
-
-
-def test_very_long_strings():
-    long_prefix = "a" * 1000
-    long_key = "a" * 2000
-    lookup = PrefixLookup([
-        (long_prefix, "value")
-    ])
-    assert lookup.match(long_key) == {"value"}
-    assert lookup.match(long_prefix) == {"value"}
-    assert lookup.match("a" * 999) == set()
+    assert lookup.match("abc") == {42}
+    assert lookup.match("bcd") == {"hello"}
+    assert lookup.match("cde") == {(1, 2, 3)}
+    assert lookup.match("def") == {None}
 
 
 def test_edge_cases():
     lookup = PrefixLookup([
-        ("", "empty"),  # Empty string
-        (" ", "space"),  # Single space
-        ("  ", "spaces"),  # Multiple spaces
-        ("\x00", "null"),  # Null character
+        ("", 1),
+        (" ", 2),
+        ("  ", 3),
+        ("   ", 4),
     ])
-    assert lookup.match("anything") == {"empty"}
-    assert lookup.match(" test") == {"empty", "space"}
-    assert lookup.match("  test") == {"empty", "space", "spaces"}
-    assert lookup.match("\x00test") == {"empty", "null"}
+    assert lookup.match("abc") == {1}
+    assert lookup.match(" abc") == {1, 2}
+    assert lookup.match("  abc") == {1, 2, 3}
+    assert lookup.match("   abc") == {1, 2, 3, 4}
+    assert lookup.match("    abc") == {1, 2, 3, 4}

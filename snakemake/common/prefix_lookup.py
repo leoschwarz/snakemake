@@ -13,12 +13,15 @@ class PrefixLookup:
         return set(self.match_iter(key))
 
     def match_iter(self, key: str) -> Generator[V, None, None]:
+        """Returns all entries which are prefixes of the given key.
+
+        E.g. if "abc" is the key then "abc", "ab", "a", and "" are considered valid prefixes.
+        """
         stop_idx = bisect.bisect_right(self._entries, key, key=lambda x: x[0])
-        previous_len = math.inf
         for index in range(stop_idx - 1, -1, -1):
             k, entry = self._entries[index]
             if key.startswith(k):
                 yield entry
-            elif len(k) > previous_len:
-                break
-            previous_len = len(k)
+            else:
+                # TODO naive impl
+                pass
