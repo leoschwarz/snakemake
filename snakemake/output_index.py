@@ -32,6 +32,15 @@ class OutputIndex:
 
         To further verify the match, the returned rules should be checked with ``Rule.is_producer(targetfile)``.
         """
+        # TOOD this trivial implementation has the correct behavior:
+        #result = set()
+        #for prefix, entries in self._entries:
+        #    for (rule, suffix) in entries:
+        #        if targetfile.startswith(prefix) and targetfile.endswith(suffix):
+        #            result.add(rule)
+        #return result
+
+
         stop_idx = bisect.bisect_right(self._entries, targetfile, key=lambda x: x[0])
         hits = set()
 
@@ -41,6 +50,7 @@ class OutputIndex:
                 hits.update(
                     rule for rule, suffix in entries if targetfile.endswith(suffix)
                 )
+                break
             elif index != stop_idx - 1:
                 break
 
