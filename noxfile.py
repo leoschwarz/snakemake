@@ -5,6 +5,7 @@ Can be run in container with
 
 import nox
 import subprocess
+from pathlib import Path
 from contextlib import contextmanager
 
 nox.options.default_venv_backend = "micromamba"
@@ -25,8 +26,10 @@ def ensure_temp_version(session):
 
 @nox.session(python="3.11", reuse_venv=True)
 def test(session):
+    bin_dir = Path(session.bin)
     session.conda_install("--file", "test-environment.yml", channel=["conda-forge", "bioconda"])
-    session.conda_install("git")
+    session.conda_install("git", "stress-ng", "openmpi")
+    session.run("ln", "-sf", bin_dir / "stress-ng", bin_dir / "stress", external=True)
     with ensure_temp_version(session):
         session.install("-e", ".")
         session.run("pip", "freeze")
