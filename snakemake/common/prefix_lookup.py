@@ -1,5 +1,4 @@
 import bisect
-import math
 from typing import Sequence, TypeVar, Generator
 
 V = TypeVar("V")
