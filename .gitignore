@@ -25,6 +25,7 @@ dist/
 .vscode
 .ropeproject
 .test*
+.nox
 tests/test*/*
 playground/*
 tutorial/*
