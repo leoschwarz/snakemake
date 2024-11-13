@@ -17,10 +17,12 @@ class PrefixLookup:
         E.g. if "abc" is the key then "abc", "ab", "a", and "" are considered valid prefixes.
         """
         stop_idx = bisect.bisect_right(self._entries, key, key=lambda x: x[0])
+        last_len = float("inf")
         for index in range(stop_idx - 1, -1, -1):
             k, entry = self._entries[index]
             if key.startswith(k):
                 yield entry
-            else:
-                # TODO naive impl
-                pass
+                last_len = len(k)
+            elif len(k) > last_len:
+                # If we find a non-matching prefix shorter than our last match, we can stop
+                break
