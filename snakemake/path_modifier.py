@@ -3,14 +3,12 @@ __copyright__ = "Copyright 2022, Johannes Köster"
 __email__ = "johannes.koester@uni-due.de"
 __license__ = "MIT"
 
-import bisect
 import os
 
 from snakemake.common.prefix_lookup import PrefixLookup
 from snakemake.exceptions import WorkflowError
 from snakemake.io import is_callable, is_flagged, AnnotatedString, flag, get_flag_value
 from snakemake.logging import logger
-
 
 PATH_MODIFIER_FLAG = "path_modified"
 
@@ -82,7 +80,7 @@ class PathModifier:
             elif prefixes:
                 # replace prefix
                 prefix, replacement = prefixes[0]
-                return replacement + path[len(prefix) :]
+                return replacement + path[len(prefix):]
             else:
                 # no matching prefix
                 return path
