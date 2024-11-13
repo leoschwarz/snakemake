@@ -40,7 +40,6 @@ class OutputIndex:
         #            result.add(rule)
         #return result
 
-
         stop_idx = bisect.bisect_right(self._entries, targetfile, key=lambda x: x[0])
         hits = set()
 
@@ -50,8 +49,7 @@ class OutputIndex:
                 hits.update(
                     rule for rule, suffix in entries if targetfile.endswith(suffix)
                 )
-                break
-            elif index != stop_idx - 1:
+            elif len(key) > len(targetfile):
                 break
 
         return hits
