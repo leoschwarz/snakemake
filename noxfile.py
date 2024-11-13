@@ -29,6 +29,16 @@ def ensure_temp_version(session):
 
 @nox.session(python="3.11", reuse_venv=True)
 def test(session):
+    test_files_default = [
+        "tests/tests.py",
+        "tests/test_expand.py",
+        "tests/test_io.py",
+        "tests/test_schema.py",
+        "tests/test_linting.py",
+        "tests/test_executor_test_suite.py",
+        "tests/test_api.py",
+    ]
+    test_files = session.posargs if session.posargs else test_files_default
     bin_dir = Path(session.bin)
     session.conda_install("--file", "test-environment.yml", channel=["conda-forge", "bioconda"])
     session.conda_install("git", "stress-ng", "openmpi")
@@ -36,15 +46,6 @@ def test(session):
     with ensure_temp_version(session):
         session.install("-e", ".")
         session.run("pip", "freeze")
-        test_files = [
-            "tests/tests.py",
-            "tests/test_expand.py",
-            "tests/test_io.py",
-            "tests/test_schema.py",
-            "tests/test_linting.py",
-            "tests/test_executor_test_suite.py",
-            "tests/test_api.py",
-        ]
         #env={"CI": "true"}
         session.run("pytest", "-v", "-x", *test_files)
 
